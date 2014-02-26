@@ -8,7 +8,7 @@
 Card *get_deck ()
 {
   int deck_size = DECKSIZE;
-  char *line = malloc (sizeof(5));
+  char *line = malloc (5);
   Card card;
   Card *deck = malloc(sizeof(Card *) * DECKSIZE);
   
