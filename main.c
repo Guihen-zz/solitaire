@@ -2,8 +2,8 @@
 
 int main (void) 
 {
-  // This panel contains 59 chars.
-  // 24 spaces between the title and the form.
+  /* This panel contains 59 chars. */
+  /* 24 spaces between the title and the form. */
   printf ("+---------------------------------------------------------+\n");
   printf ("|                        Solitaire                        |\n");
   printf ("+---------------------------------------------------------+\n");
