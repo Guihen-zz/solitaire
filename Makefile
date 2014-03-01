@@ -11,9 +11,15 @@ LDFLAGS = -L.
 RM = /bin/rm -f
 
 # -- Geracao do executavel -- #
-main:
-	$(CC) $(CFLAGS) -o main main.c
+main: CARD_STACK.o main.o
+	$(CC) $(CFLAGS) -o main main.o CARD_STACK.o
+
+main.o: main.c
+	$(CC) $(CFLAGS) -c main.c 
+
+CARD_STACK.o:
+	$(CC) $(CFLAGS) -c CARD_STACK.c
 
 # -- Clean -- #
 clean:
-	$(RM) main
+	$(RM) main *.o
