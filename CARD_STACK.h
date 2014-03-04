@@ -11,8 +11,7 @@
  * Author: GUILHERME HENRIQUE ROJAS V. DE LIMA
  * email: guihen@linux.ime.usp.br
  *
- * Stack implemented as linked list to represent a set of cards and its position
- * (if it is face up or not).
+ * CardStack is a handler to a linked list that represents a stack of cards.
  ******************************************************************************/
 
 typedef struct node *link;
