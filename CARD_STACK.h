@@ -11,7 +11,8 @@
  * Author: GUILHERME HENRIQUE ROJAS V. DE LIMA
  * email: guihen@linux.ime.usp.br
  *
- * CardStack is a handler to a linked list that represents a stack of cards.
+ * CardStack handles the head and tails of a linked list that represents a stack
+ * of cards.
  ******************************************************************************/
 
 typedef struct node *link;
@@ -19,8 +20,15 @@ struct node
 {
   Card card;
   link next;
+  link prev;
 };
-typedef link *CardStack;
+
+typedef struct doubly_linked *CardStack;
+struct doubly_linked
+{
+  link HEAD;
+  link TAIL;
+};
 
 CardStack new_stack();
 void push (CardStack, Card);
