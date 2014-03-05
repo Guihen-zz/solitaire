@@ -50,3 +50,22 @@ Card pop (CardStack stack)
   
   return card;
 }
+
+link get_last_node (CardStack stack)
+{
+  link node = stack->TAIL->prev;
+  if (node->card == NONE) return NULL; /* It doesn't return the HEAD. */
+  return node->prev;
+}
+
+link previous_node (link node)
+{
+  link prev = node->prev;
+  if (prev->card == NONE) return NULL; /* It doesn't return the HEAD. */
+  return prev;
+}
+
+Card get_card (link node)
+{
+  return node->card;
+}
