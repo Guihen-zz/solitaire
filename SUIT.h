@@ -7,12 +7,10 @@
  * Author: GUILHERME HENRIQUE ROJAS V. DE LIMA
  * email: guihen@linux.ime.usp.br
  *
- * This file represents the suit of a card. It is implemented as a ENUM field
- * and it assume values: DIAMONDS, HEARTS, CLUBS or SPADES.
+ * This file represents the suit of a card.
  ******************************************************************************/
 
-enum suit {DIAMONDS, HEARTS, CLUBS, SPADES};
-typedef enum suit Suit;
+typedef char Suit;
 
 #endif
 
