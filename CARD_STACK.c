@@ -59,6 +59,13 @@ link get_last_node (CardStack stack)
   return node;
 }
 
+link get_first_node (CardStack stack)
+{
+  link node = stack->HEAD->next;
+  if (node->card == NONE) return NULL; /* It doesn't return the TAIL. */
+  return node;
+}
+
 link previous_node (link node)
 {
   link prev = node->prev;

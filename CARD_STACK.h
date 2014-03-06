@@ -13,7 +13,7 @@
  * email: guihen@linux.ime.usp.br
  *
  * CardStack handles the head and tails of a linked list that represents a stack
- * of cards.
+ * of cards. Node is a alias os link type for the client.
  ******************************************************************************/
 
 typedef struct node *link;
@@ -34,8 +34,11 @@ struct doubly_linked
 CardStack new_stack();
 void push (CardStack, Card);
 Card pop (CardStack);
-link get_last_node (CardStack);
-link previous_node (link);
-Card get_card (link);
+
+Node get_last_node (CardStack);
+Node get_first_node (CardStack);
+Node previous_node (Node);
+
+Card get_card (Node);
 
 #endif

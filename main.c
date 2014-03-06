@@ -52,7 +52,9 @@ CardStack* prepare_solitaire(Card *deck)
     for (j = i; j < 7; j++)
       push (template[j], deck[deck_index++]);
 
-  /* It should set face up the last cards in the stack. */
+  for (i = 0; i < 7; i++)
+    get_card (get_first_node (template[i]))->face_up = true;
+
   return template;
 }
 
@@ -74,7 +76,10 @@ void print (CardStack *solitaire)
     if (node[i] != NULL)
     {
       card = get_card (node[i]);
-      printf("  [%c%c]  ", card->suit, card->rank);
+
+      if (card->face_up)
+        printf("  [%c%c]  ", card->suit, card->rank);
+      else printf("  [??]  ");
 
       node[i] = previous_node (node[i]);
     }
