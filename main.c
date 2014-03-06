@@ -31,34 +31,38 @@ void show_deck (Card *deck)
     printf ("%c %c\n", deck[i]->rank, deck[i]->suit);
 }
 
-CardStack *init_solitaire_template()
+CardStack *init_tableau_stacks()
 {
   int i;
-  CardStack *template = malloc (sizeof (CardStack) * 7);
+  CardStack *tableau_stacks = malloc (sizeof (CardStack) * 7);
 
   for (i = 0; i < 7; i++)
   {
-    template[i] = new_stack();
+    tableau_stacks[i] = new_stack();
   }
-  return template;
+  return tableau_stacks;
 }
 
-CardStack* prepare_solitaire(Card *deck)
+CardStack* prepare_tableau_stacks (Card *deck)
 {
   int i, j, deck_index = 0;
-  CardStack *template = init_solitaire_template();
+  CardStack *tableau_stacks = init_tableau_stacks ();
 
   for (i = 0; i < 7; i++)
     for (j = i; j < 7; j++)
-      push (template[j], deck[deck_index++]);
+    {
+      push (tableau_stacks[j], deck[deck_index]);
+      deck[deck_index] = NONE; /* Remove the card from deck */
+      deck_index++;
+    }
 
   for (i = 0; i < 7; i++)
-    get_card (get_first_node (template[i]))->face_up = true;
+    get_card (get_first_node (tableau_stacks[i]))->face_up = true;
 
-  return template;
+  return tableau_stacks;
 }
 
-void print (CardStack *solitaire)
+void print_tableau_stacks (CardStack *tableau_stacks)
 {
   int i, j;
   Node node[7];
@@ -66,7 +70,7 @@ void print (CardStack *solitaire)
   bool exit_condition;
 
   for (i = 0; i < 7; i++)
-    node[i] = get_last_node (solitaire[i]);
+    node[i] = get_last_node (tableau_stacks[i]);
 
   i = 0, exit_condition = false;
   while (!exit_condition)
@@ -78,7 +82,7 @@ void print (CardStack *solitaire)
       card = get_card (node[i]);
 
       if (card->face_up)
-        printf("  [%c%c]  ", card->suit, card->rank);
+        printf("  [%c%c]  ", card->rank, card->suit);
       else printf("  [??]  ");
 
       node[i] = previous_node (node[i]);
@@ -101,21 +105,35 @@ void print (CardStack *solitaire)
   }
 }
 
+CardStack prepare_stock_stack (Card *deck)
+{
+  int i;
+  CardStack stock = new_stack();
+  for (i = DECKSIZE - 1; deck[i] != NONE; i--)
+  {
+    push (stock, deck[i]);
+    deck[i] = NONE;
+  }
+  free(deck);
+  return stock;
+}
+
 int main (void)
 {
   Card *deck = get_deck();
-  CardStack *solitaire = prepare_solitaire (deck);
+  CardStack *tableau_stacks = prepare_tableau_stacks (deck);
+  CardStack stock = prepare_stock_stack (deck);
   
   /* This panel contains 59 chars. */
   /* 24 spaces between the title and the form. */
   printf ("+---------------------------------------------------------+\n");
   printf ("|                        Solitaire                        |\n");
   printf ("+---------------------------------------------------------+\n");
-  printf ("|   (%2d) [ %2d ]           [ %2d ]  [ %2d ]  [ %2d ]  [ %2d ]  |\n", 23, 0, 1, 2, 3, 4);
+  printf ("|  (TRY) [ %2d ]           [ %2d ]  [ %2d ]  [ %2d ]  [ %2d ]  |\n", 0, 1, 2, 3, 4);
   printf ("|                                                         |\n");
   printf ("|                                                         |\n");
 
-  print (solitaire);
+  print_tableau_stacks (tableau_stacks);
 
   printf ("|_________________________________________________________|\n");
   printf (" Move description: \n");
