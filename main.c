@@ -182,29 +182,89 @@ char *show_foundation_stacks (CardStack *foundation_stacks)
   return msg;
 }
 
+bool is_red (Suit s)
+{
+  return (s == 'C' || s == 'O');
+}
+
+Rank next_rank (Rank r)
+{
+  if (r < 57) return r + 1;
+  if (r == '9') return 'J';
+  if (r == 'J') return 'Q';
+  if (r == 'Q') return 'K';
+  else return 'X'; /* This will not match with nothing. */
+}
+
+bool could_push (Card origin, Card destination)
+{
+  return ((is_red (origin->suit) != is_red (destination->suit)) &&
+      (next_rank (origin->rank) == destination->rank));
+}
+
 int main (void)
 {
+  int i, j;
   Card *deck = get_deck();
+  char *move_msg = malloc (16);
   CardStack *tableau_stacks = prepare_tableau_stacks (deck),
     *foundation_stacks = prepare_foundation_stacks();
   CardStack stock = prepare_stock_stack (deck),
     talon = new_stack();
+  bool playing, analysis_finished;
+  Card card;
   
-  /* This panel contains 59 chars. */
-  /* 24 spaces between the title and the form. */
-  printf ("+---------------------------------------------------------+\n");
-  printf ("|                        Solitaire                        |\n");
-  printf ("+---------------------------------------------------------+\n");
-  printf ("| (%s) [%s]      %s |\n",
-    show_stock(stock), show_talon(talon), 
-    show_foundation_stacks(foundation_stacks));
-  printf ("|                                                         |\n");
-  printf ("|                                                         |\n");
+  playing = true;
+  while (playing)
+  {
+    /* This panel contains 59 chars. */
+    /* 24 spaces between the title and the form. */
+    printf ("+---------------------------------------------------------+\n");
+    printf ("|                        Solitaire                        |\n");
+    printf ("+---------------------------------------------------------+\n");
+    printf ("| (%s) [%s]      %s |\n",
+      show_stock(stock), show_talon(talon), 
+      show_foundation_stacks(foundation_stacks));
+    printf ("|                                                         |\n");
+    printf ("|                                                         |\n");
 
-  print_tableau_stacks (tableau_stacks);
+    print_tableau_stacks (tableau_stacks);
 
-  printf ("|_________________________________________________________|\n");
-  printf (" Move description: \n");
+    printf ("|_________________________________________________________|\n");
 
+    for (i = 0, analysis_finished = false; i < 7 && !analysis_finished; i++)
+    {
+      /* INVARIANT RELATION: all the tableau stacks with index < i has been 
+                                                                    analyzed. */
+      card = get_card (get_first_node (tableau_stacks[i]));
+      for (j = 0; j < 7; j++)
+      {
+        /* skips search in the same stack. */
+        if (j == i) continue;
+
+        if (could_push (card, 
+          get_card (get_first_node (tableau_stacks[j]))))
+        {
+          push (tableau_stacks[j], pop (tableau_stacks[i]));
+          sprintf (move_msg, "%c%c from %d to %d.", 
+            card->rank, card->suit, i, j);
+          get_card (get_first_node (tableau_stacks[i]))->face_up = true;
+
+          analysis_finished = true;
+          break;
+        }
+      }
+    }
+
+    /* For the invariant relation, if i = 7, then there wasn't any movement. */
+    if (i == 7) playing = false;
+
+    printf (" Next move description: %s\n", move_msg);
+    printf("\t\t(tap a key to continue...)\n");
+
+    /* it should wait the user hit a key... */
+    system("clear");
+  }
+  
   return 0;
 }

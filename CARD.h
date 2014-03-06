@@ -16,10 +16,11 @@
 #include <stdbool.h>
 #include "SUIT.h"
 
+typedef char Rank;
 struct card
 {
   Suit suit;
-  char rank;
+  Rank rank;
   bool face_up;
 };
 typedef struct card *Card;
