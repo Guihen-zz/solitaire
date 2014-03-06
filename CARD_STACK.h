@@ -4,6 +4,7 @@
 #include "Card.h"
 
 #define NONE NULL
+#define Node link
 
 /******************************************************************************\
  * Klondike Solitaire Solver
