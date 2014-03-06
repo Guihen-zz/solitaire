@@ -1,11 +1,12 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "CARD_STACK.h"
 
 CardStack new_stack()
 {
-  CardStack stack = malloc (sizeof (CardStack));
-  link tail_link = malloc (sizeof (link)),
-    head_link = malloc (sizeof (link));
+  CardStack stack = malloc (sizeof (*stack));
+  link tail_link = malloc (sizeof (*tail_link)),
+    head_link = malloc (sizeof (*head_link));
   
   tail_link->card = NONE;
   tail_link->next = NULL;
@@ -23,15 +24,15 @@ CardStack new_stack()
 
 void push (CardStack stack, Card card)
 {
-  link new_node = malloc (sizeof (link)),
+  link new_node = malloc (sizeof (*new_node)),
     head_next = stack->HEAD->next;
 
   stack->HEAD->next = new_node;
-
   new_node->card = card;
+
   new_node->next = head_next;
   new_node->prev = stack->HEAD;
-  
+
   head_next->prev = new_node;
 }
 
@@ -55,7 +56,7 @@ link get_last_node (CardStack stack)
 {
   link node = stack->TAIL->prev;
   if (node->card == NONE) return NULL; /* It doesn't return the HEAD. */
-  return node->prev;
+  return node;
 }
 
 link previous_node (link node)
