@@ -118,10 +118,20 @@ CardStack prepare_stock_stack (Card *deck)
   return stock;
 }
 
+CardStack *prepare_foundation_stacks()
+{
+  int i;
+  CardStack *foundation_stacks = malloc(sizeof(CardStack) * 4);
+  for (i = 0; i < 5; i++)
+    foundation_stacks[i] = new_stack();
+  return foundation_stacks;
+}
+
 int main (void)
 {
   Card *deck = get_deck();
-  CardStack *tableau_stacks = prepare_tableau_stacks (deck);
+  CardStack *tableau_stacks = prepare_tableau_stacks (deck),
+    *foundation_stacks = prepare_foundation_stacks();
   CardStack stock = prepare_stock_stack (deck);
   
   /* This panel contains 59 chars. */
