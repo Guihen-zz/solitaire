@@ -217,6 +217,7 @@ int main (void)
   playing = true;
   while (playing)
   {
+    sprintf(move_msg ,"none.");
     /* This panel contains 59 chars. */
     /* 24 spaces between the title and the form. */
     printf ("+---------------------------------------------------------+\n");
@@ -247,7 +248,7 @@ int main (void)
         {
           push (tableau_stacks[j], pop (tableau_stacks[i]));
           sprintf (move_msg, "%c%c from %d to %d.", 
-            card->rank, card->suit, i, j);
+            card->rank, card->suit, i + 1, j + 1);
           get_card (get_first_node (tableau_stacks[i]))->face_up = true;
 
           analysis_finished = true;
