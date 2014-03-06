@@ -127,19 +127,66 @@ CardStack *prepare_foundation_stacks()
   return foundation_stacks;
 }
 
+char *show_stock (CardStack stock)
+{
+  if (get_first_node(stock) == NULL)
+    return "RELOAD";
+  return " GET! ";
+}
+
+char *show_talon (CardStack talon)
+{
+  Node top = get_first_node(talon);
+  Card card;
+  char *msg;
+
+  if ( top == NULL)
+    return "XX";
+
+  msg = malloc (3);
+  card = get_card (top);
+  sprintf(msg, "%c%c", card->rank, card->suit);
+  return msg;
+}
+
+char *show_foundation_stacks (CardStack *foundation_stacks)
+{
+  int i;
+  char *msg = malloc (4 * 8 + 1),
+    *temp = malloc (9);
+  Node node;
+  Card card;
+
+  for (i = 0; i < 4; i++)
+  {
+    node = get_first_node (foundation_stacks[i]);
+    if (node != NULL)
+    {
+      card = get_card (node);
+      sprintf (temp, "  [%c%c]  ", card->rank, card->suit);
+    }
+    else sprintf (temp, "        ");
+    msg = strcat (msg, temp);
+  }
+  return msg;
+}
+
 int main (void)
 {
   Card *deck = get_deck();
   CardStack *tableau_stacks = prepare_tableau_stacks (deck),
     *foundation_stacks = prepare_foundation_stacks();
-  CardStack stock = prepare_stock_stack (deck);
+  CardStack stock = prepare_stock_stack (deck),
+    talon = new_stack();
   
   /* This panel contains 59 chars. */
   /* 24 spaces between the title and the form. */
   printf ("+---------------------------------------------------------+\n");
   printf ("|                        Solitaire                        |\n");
   printf ("+---------------------------------------------------------+\n");
-  printf ("|  (TRY) [ %2d ]           [ %2d ]  [ %2d ]  [ %2d ]  [ %2d ]  |\n", 0, 1, 2, 3, 4);
+  printf ("| (%s) [%s]         %s  |\n",
+    show_stock(stock), show_talon(talon), 
+    show_foundation_stacks(foundation_stacks));
   printf ("|                                                         |\n");
   printf ("|                                                         |\n");
 
