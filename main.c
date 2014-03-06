@@ -154,6 +154,7 @@ char *show_foundation_stacks (CardStack *foundation_stacks)
   int i;
   char *msg = malloc (4 * 8 + 1),
     *temp = malloc (9);
+  char suit;
   Node node;
   Card card;
 
@@ -165,7 +166,17 @@ char *show_foundation_stacks (CardStack *foundation_stacks)
       card = get_card (node);
       sprintf (temp, "  [%c%c]  ", card->rank, card->suit);
     }
-    else sprintf (temp, "        ");
+    else
+    {
+      switch (i)
+      {
+        case 0: suit = 'C'; break;
+        case 1: suit = 'E'; break;
+        case 2: suit = 'P'; break;
+        case 3: suit = 'O'; break;
+      }
+      sprintf (temp, "  [  %c]  ", suit);
+    } 
     msg = strcat (msg, temp);
   }
   return msg;
@@ -184,7 +195,7 @@ int main (void)
   printf ("+---------------------------------------------------------+\n");
   printf ("|                        Solitaire                        |\n");
   printf ("+---------------------------------------------------------+\n");
-  printf ("| (%s) [%s]         %s  |\n",
+  printf ("| (%s) [%s]      %s |\n",
     show_stock(stock), show_talon(talon), 
     show_foundation_stacks(foundation_stacks));
   printf ("|                                                         |\n");
