@@ -67,14 +67,21 @@ void print_tableau_stacks (CardStack *tableau_stacks)
   int i, j;
   Node node[7];
   Card card;
-  bool exit_condition;
+  bool some_node_not_null = true;
 
   for (i = 0; i < 7; i++)
     node[i] = get_last_node (tableau_stacks[i]);
 
-  i = 0, exit_condition = false;
-  while (!exit_condition)
+  i = 0;
+  while (some_node_not_null)
   {
+    /* INVARIANT RELATION: all the nodes with index < j are null nodes. */
+    for (j = 0; j < 7 && node[j] == NULL; j++);
+    
+    /* Exit Condition: all nodes are null and it is in the begin of new line. */
+    if (j == 7 && i == 0) break;
+
+    /* Print */
     if (i == 0) printf ("| ");
 
     if (node[i] != NULL)
@@ -94,14 +101,6 @@ void print_tableau_stacks (CardStack *tableau_stacks)
       printf ("|\n");
       i = 0;
     }
-
-    /* Exit Condition. */
-    for (j = 0; j < 7; j++)
-    {
-      /* INVARIANT RELATION: all the nodes with index < j are null nodes. */
-      if (node[j] != NULL) break;
-    }
-    if (j == 7) exit_condition = true;
   }
 }
 
