@@ -77,3 +77,8 @@ Card get_card (link node)
 {
   return node->card;
 }
+
+bool empty (CardStack stack)
+{
+  return (stack->HEAD->next == stack->TAIL);
+}

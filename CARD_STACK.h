@@ -1,6 +1,7 @@
 #ifndef CSET
 #define CSET
 
+#include <stdbool.h>
 #include "Card.h"
 
 #define NONE NULL
@@ -34,6 +35,7 @@ struct doubly_linked
 CardStack new_stack();
 void push (CardStack, Card);
 Card pop (CardStack);
+bool empty (CardStack);
 
 Node get_last_node (CardStack);
 Node get_first_node (CardStack);
