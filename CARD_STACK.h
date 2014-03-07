@@ -40,6 +40,7 @@ bool empty (CardStack);
 Node get_last_node (CardStack);
 Node get_first_node (CardStack);
 Node previous_node (Node);
+Node next_node (Node);
 
 Card get_card (Node);
 

@@ -202,112 +202,133 @@ bool could_push (Card origin, Card destination)
       (next_rank (origin->rank) == destination->rank));
 }
 
+void print (CardStack stock, CardStack talon, CardStack *foundation_stacks, 
+  CardStack *tableau_stacks, char *move_description)
+{
+  /* This panel contains 59 chars. */
+  /* 24 spaces between the title and the form. */
+  printf ("+---------------------------------------------------------+\n");
+  printf ("|                        Solitaire                        |\n");
+  printf ("+---------------------------------------------------------+\n");
+  printf ("| (%s) [%s]      %s |\n",
+    show_stock(stock), show_talon(talon), 
+    show_foundation_stacks(foundation_stacks));
+  
+  printf ("|                                                         |\n");
+  printf ("|                                                         |\n");
+
+  print_tableau_stacks (tableau_stacks);
+
+  printf ("|_________________________________________________________|\n");
+  printf (" Next move description: %s\n", move_description);
+  printf("\t\t(tap a key to continue...)\n");
+
+  /* it should wait the user hit a key... */
+  system("clear");
+}
+
 int main (void)
 {
   int i, j;
   Card *deck = get_deck();
-  char *move_msg = malloc (64);
+  char *move_description = malloc (48);
   CardStack *tableau_stacks = prepare_tableau_stacks (deck),
     *foundation_stacks = prepare_foundation_stacks();
   CardStack stock = prepare_stock_stack (deck),
     talon = new_stack();
-  bool playing, analysis_finished;
-  bool using_talon = false;
+  bool playing;
   Card card;
+  Node node;
   
   playing = true;
   while (playing)
   {
-    sprintf(move_msg ,"none."); /* clear the last message. */
-
-    /* This panel contains 59 chars. */
-    /* 24 spaces between the title and the form. */
-    printf ("+---------------------------------------------------------+\n");
-    printf ("|                        Solitaire                        |\n");
-    printf ("+---------------------------------------------------------+\n");
-    printf ("| (%s) [%s]      %s |\n",
-      show_stock(stock), show_talon(talon), 
-      show_foundation_stacks(foundation_stacks));
-    
-    printf ("|                                                         |\n");
-    printf ("|                                                         |\n");
-
-    print_tableau_stacks (tableau_stacks);
-
-    printf ("|_________________________________________________________|\n");
-
-    if (!using_talon)
+    /* INVARIANT RELATION: tableau stacks with index < i has been analyzed. */
+    for (i = 0; i < 7; i++)
     {
-      for (i = 0, analysis_finished = false; i < 7 && !analysis_finished; i++)
+      card = get_card (get_first_node (tableau_stacks[i]));
+
+      /* I. R.: tableau stacks with index < j has been visited. */
+      for (j = 0; j < 7; j++)
       {
-        /* INVARIANT RELATION: all the tableau stacks with index < i has been 
-                                                                      analyzed. */
-        card = get_card (get_first_node (tableau_stacks[i]));
-        for (j = 0; j < 7; j++)
+        /* skips search in the same stack. */
+        if (j == i) continue;
+
+        if (could_push (card, 
+          get_card (get_first_node (tableau_stacks[j]))))
         {
-          /* skips search in the same stack. */
-          if (j == i) continue;
+          /* FIX this condition. */
+          node = next_node (get_first_node (tableau_stacks[i]));
+          if (node != NULL && get_card (node)->face_up)
+            continue;
 
-          if (could_push (card, 
-            get_card (get_first_node (tableau_stacks[j]))))
-          {
-            push (tableau_stacks[j], pop (tableau_stacks[i]));
-            sprintf (move_msg, "%c%c from %d to %d.", 
-              card->rank, card->suit, i + 1, j + 1);
-            get_card (get_first_node (tableau_stacks[i]))->face_up = true;
+          sprintf (move_description, "%c%c from %d to %d.", 
+            card->rank, card->suit, i + 1, j + 1);
+          print (stock, talon, foundation_stacks, tableau_stacks, move_description);
 
-            analysis_finished = true;
-            break;
-          }
+          push (tableau_stacks[j], pop (tableau_stacks[i]));
+          get_card (get_first_node (tableau_stacks[i]))->face_up = true;
+          
+          break;
         }
       }
+
+      /* For the invariant relation: j < 7 => a movimentation has happened. */
+      if (j < 7) break;
     }
-    else
-    {
-      using_talon = false;
-      i = 7;
-    }
+
+    /* For the invariant relation: i < 7 => a movimentation has happened. */
+    if (i < 7) continue;
     
-    /* For the invariant relation, if i = 7, then there wasn't any movement. */
-    if (i == 7)
+    /*************************** Use the talon ********************************/
+    if (empty (talon))
     {
-      /* Use the talon */
-      if (empty (talon))
+      sprintf (move_description, "Moved a card from Stock to Talon.");
+      print (stock, talon, foundation_stacks, tableau_stacks, move_description);
+
+      push (talon, pop (stock));
+      continue;
+    }
+
+    do
+    {
+      card = get_card (get_first_node (talon));
+
+      /* I. R.: tableau stacks with index < j has been visited. */
+      for (j = 0; j < 7; j++)
       {
+        if (could_push (card, get_card (get_first_node (tableau_stacks[j]))))
+        {
+          sprintf (move_description, "%c%c from Talon to %d.", 
+            card->rank, card->suit, j + 1);
+          print (stock, talon, foundation_stacks, tableau_stacks, 
+            move_description);
+
+          push (tableau_stacks[j], pop (talon));
+          break;
+        }
+      }
+
+      /* For the invariant relation: j = 7 => there is not a move to do. */  
+      if (j == 7)
+      {
+        if (empty (stock))
+        {
+          print (stock, talon, foundation_stacks, tableau_stacks, "End Game.");
+          playing = false;
+
+          break;
+        }
+
+        sprintf (move_description, "Moved a card from Stock to Talon.");
+        print (stock, talon, foundation_stacks, tableau_stacks, move_description);
+
         push (talon, pop (stock));
-        sprintf (move_msg, "Moved a card from Stock to Talon.");
-        using_talon = true;
       }
-      else
-      {
-        card = get_card (get_first_node (talon));
 
-        /* INVARIANT RELATION: all the tableau stacks with index < j has been 
-                                                                    analyzed. */
-        for (j = 0; j < 7; j++)
-        {
-          if (could_push (card, 
-            get_card (get_first_node (tableau_stacks[j]))))
-          {
-            push (tableau_stacks[j], pop (talon));
-            sprintf (move_msg, "%c%c from Talon to %d.", 
-              card->rank, card->suit, j + 1);
+    } while (j == 7);
 
-            analysis_finished = true;
-            break;
-          }
-        }
-
-        /* For the invariant relation, if j = 7, then there wasn't any movement */
-        if (j == 7 ) playing = false;
-      }
-    }
-
-    printf (" Next move description: %s\n", move_msg);
-    printf("\t\t(tap a key to continue...)\n");
-
-    /* it should wait the user hit a key... */
-    system("clear");
+    
   }
   
   return 0;

@@ -73,6 +73,13 @@ link previous_node (link node)
   return prev;
 }
 
+link next_node (link node)
+{
+  link next = node->next;
+  if (next->card == NONE) return NULL; /* It doesn't return the TAIL. */
+  return next;
+}
+
 Card get_card (link node)
 {
   return node->card;
