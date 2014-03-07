@@ -294,23 +294,25 @@ int main (void)
     {
       card = get_card (get_first_node (talon));
 
-      /* I. R.: tableau stacks with index < j has been visited. */
-      for (j = 0; j < 7; j++)
+      /* I. R.: tableau stacks with index < i has been visited. */
+      for (i = 0; i < 7; i++)
       {
-        if (could_push (card, get_card (get_first_node (tableau_stacks[j]))))
+        if (could_push (card, get_card (get_first_node (tableau_stacks[i]))))
         {
           sprintf (move_description, "%c%c from Talon to %d.", 
-            card->rank, card->suit, j + 1);
+            card->rank, card->suit, i + 1);
           print (stock, talon, foundation_stacks, tableau_stacks, 
             move_description);
-
-          push (tableau_stacks[j], pop (talon));
+          
+          card = pop (talon);
+          card->face_up = true;
+          push (tableau_stacks[i], card);
           break;
         }
       }
 
-      /* For the invariant relation: j = 7 => there is not a move to do. */  
-      if (j == 7)
+      /* For the invariant relation: i = 7 => there is not a move to do. */  
+      if (i == 7)
       {
         if (empty (stock))
         {
@@ -326,9 +328,7 @@ int main (void)
         push (talon, pop (stock));
       }
 
-    } while (j == 7);
-
-    
+    } while (i == 7);
   }
   
   return 0;
