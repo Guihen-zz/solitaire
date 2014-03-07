@@ -206,7 +206,7 @@ int main (void)
 {
   int i, j;
   Card *deck = get_deck();
-  char *move_msg = malloc (16);
+  char *move_msg = malloc (64);
   CardStack *tableau_stacks = prepare_tableau_stacks (deck),
     *foundation_stacks = prepare_foundation_stacks();
   CardStack stock = prepare_stock_stack (deck),
