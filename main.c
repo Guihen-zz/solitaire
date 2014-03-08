@@ -226,6 +226,14 @@ void print (CardStack stock, CardStack talon, CardStack *foundation_stacks,
   system("clear");
 }
 
+int suit_to_number (Suit s)
+{
+  if (s == 'C') return 0;
+  if (s == 'E') return 1;
+  if (s == 'P') return 2;
+  /* s == 'O' */return 0;
+}
+
 int main (void)
 {
   int i, j, step_counter = 0;
@@ -242,11 +250,24 @@ int main (void)
   playing = true;
   while (playing)
   {
-    ++step_counter;
     /* INVARIANT RELATION: tableau stacks with index < i has been analyzed. */
     for (i = 0; i < 7; i++)
     {
       card = get_card (get_first_node (tableau_stacks[i]));
+      
+      node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
+      if ((node == NULL && card->rank == 'A') || 
+        (node != NULL && could_push (card, get_card (node))))
+      {
+        sprintf (move_description, "%c%c from %d to Foundation.", 
+          card->rank, card->suit, i + 1);
+        print (stock, talon, foundation_stacks, tableau_stacks,
+          move_description, ++step_counter);
+
+        push (foundation_stacks[suit_to_number (card->suit)], pop (tableau_stacks[i]));
+        get_card (get_first_node (tableau_stacks[i]))->face_up = true;
+        break;
+      }
 
       /* I. R.: tableau stacks with index < j has been visited. */
       for (j = 0; j < 7; j++)
@@ -265,7 +286,7 @@ int main (void)
           sprintf (move_description, "%c%c from %d to %d.", 
             card->rank, card->suit, i + 1, j + 1);
           print (stock, talon, foundation_stacks, tableau_stacks,
-            move_description, step_counter);
+            move_description, ++step_counter);
 
           push (tableau_stacks[j], pop (tableau_stacks[i]));
           get_card (get_first_node (tableau_stacks[i]))->face_up = true;
@@ -286,7 +307,7 @@ int main (void)
     {
       sprintf (move_description, "Moved a card from Stock to Talon.");
       print (stock, talon, foundation_stacks, tableau_stacks,
-        move_description, step_counter);
+        move_description, ++step_counter);
 
       push (talon, pop (stock));
       continue;
@@ -304,7 +325,7 @@ int main (void)
           sprintf (move_description, "%c%c from Talon to %d.", 
             card->rank, card->suit, i + 1);
           print (stock, talon, foundation_stacks, tableau_stacks, 
-            move_description, step_counter);
+            move_description, ++step_counter);
           
           card = pop (talon);
           card->face_up = true;
@@ -313,13 +334,27 @@ int main (void)
         }
       }
 
+      node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
+      if ((node == NULL && card->rank == 'A') || 
+        (node != NULL && could_push (card, get_card (node))))
+      {
+        sprintf (move_description, "%c%c from Talon to Foundation.", 
+          card->rank, card->suit);
+        print (stock, talon, foundation_stacks, tableau_stacks,
+          move_description, ++step_counter);
+
+        push (foundation_stacks[suit_to_number (card->suit)], pop (talon));
+        
+        continue;
+      }
+
       /* For the invariant relation: i = 7 => there is not a move to do. */  
       if (i == 7)
       {
         if (empty (stock))
         {
           print (stock, talon, foundation_stacks, tableau_stacks, 
-            "End Game.", step_counter);
+            "End Game.", ++step_counter);
           playing = false;
 
           break;
@@ -327,7 +362,7 @@ int main (void)
 
         sprintf (move_description, "Moved a card from Stock to Talon.");
         print (stock, talon, foundation_stacks, tableau_stacks, 
-          move_description, step_counter);
+          move_description, ++step_counter);
 
         push (talon, pop (stock));
       }
