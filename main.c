@@ -188,6 +188,7 @@ bool is_red (Suit s)
 
 Rank next_rank (Rank r)
 {
+  if (r == 'A') return '2';
   if (r < 57) return r + 1;
   if (r == '9') return 'J';
   if (r == 'J') return 'Q';
@@ -199,6 +200,12 @@ bool could_push (Card origin, Card destination)
 {
   return ((is_red (origin->suit) != is_red (destination->suit)) &&
       (next_rank (origin->rank) == destination->rank));
+}
+
+bool could_push_into_foundation (Card origin, Card destination)
+{
+  return ((origin->suit == destination->suit) &&
+      (origin->rank == next_rank (destination->rank)));
 }
 
 void print (CardStack stock, CardStack talon, CardStack *foundation_stacks, 
@@ -219,7 +226,7 @@ void print (CardStack stock, CardStack talon, CardStack *foundation_stacks,
   print_tableau_stacks (tableau_stacks);
 
   printf ("|_________________________________________________________|\n");
-  printf ("|#%3d| Move description: %s\n", step_counter, move_description);
+  printf ("|#%3d| Next move: %s\n", step_counter, move_description);
   printf ("\t\t(tap a key to continue...)\n");
 
   /* it should wait the user hit a key... */
@@ -231,7 +238,7 @@ int suit_to_number (Suit s)
   if (s == 'C') return 0;
   if (s == 'E') return 1;
   if (s == 'P') return 2;
-  /* s == 'O' */return 0;
+  /* s == 'O' */return 3;
 }
 
 int main (void)
@@ -257,7 +264,7 @@ int main (void)
       
       node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
       if ((node == NULL && card->rank == 'A') || 
-        (node != NULL && could_push (card, get_card (node))))
+        (node != NULL && could_push_into_foundation (card, get_card (node))))
       {
         sprintf (move_description, "%c%c from %d to Foundation.", 
           card->rank, card->suit, i + 1);
@@ -336,7 +343,7 @@ int main (void)
 
       node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
       if ((node == NULL && card->rank == 'A') || 
-        (node != NULL && could_push (card, get_card (node))))
+        (node != NULL && could_push_into_foundation (card, get_card (node))))
       {
         sprintf (move_description, "%c%c from Talon to Foundation.", 
           card->rank, card->suit);
@@ -345,7 +352,7 @@ int main (void)
 
         push (foundation_stacks[suit_to_number (card->suit)], pop (talon));
         
-        continue;
+        break;
       }
 
       /* For the invariant relation: i = 7 => there is not a move to do. */  
