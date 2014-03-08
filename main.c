@@ -202,7 +202,7 @@ bool could_push (Card origin, Card destination)
 }
 
 void print (CardStack stock, CardStack talon, CardStack *foundation_stacks, 
-  CardStack *tableau_stacks, char *move_description)
+  CardStack *tableau_stacks, char *move_description, int step_counter)
 {
   /* This panel contains 59 chars. */
   /* 24 spaces between the title and the form. */
@@ -219,8 +219,8 @@ void print (CardStack stock, CardStack talon, CardStack *foundation_stacks,
   print_tableau_stacks (tableau_stacks);
 
   printf ("|_________________________________________________________|\n");
-  printf (" Next move description: %s\n", move_description);
-  printf("\t\t(tap a key to continue...)\n");
+  printf ("|#%3d| Move description: %s\n", step_counter, move_description);
+  printf ("\t\t(tap a key to continue...)\n");
 
   /* it should wait the user hit a key... */
   system("clear");
@@ -228,7 +228,7 @@ void print (CardStack stock, CardStack talon, CardStack *foundation_stacks,
 
 int main (void)
 {
-  int i, j;
+  int i, j, step_counter = 0;
   Card *deck = get_deck();
   char *move_description = malloc (48);
   CardStack *tableau_stacks = prepare_tableau_stacks (deck),
@@ -242,6 +242,7 @@ int main (void)
   playing = true;
   while (playing)
   {
+    ++step_counter;
     /* INVARIANT RELATION: tableau stacks with index < i has been analyzed. */
     for (i = 0; i < 7; i++)
     {
@@ -263,7 +264,8 @@ int main (void)
 
           sprintf (move_description, "%c%c from %d to %d.", 
             card->rank, card->suit, i + 1, j + 1);
-          print (stock, talon, foundation_stacks, tableau_stacks, move_description);
+          print (stock, talon, foundation_stacks, tableau_stacks,
+            move_description, step_counter);
 
           push (tableau_stacks[j], pop (tableau_stacks[i]));
           get_card (get_first_node (tableau_stacks[i]))->face_up = true;
@@ -283,7 +285,8 @@ int main (void)
     if (empty (talon))
     {
       sprintf (move_description, "Moved a card from Stock to Talon.");
-      print (stock, talon, foundation_stacks, tableau_stacks, move_description);
+      print (stock, talon, foundation_stacks, tableau_stacks,
+        move_description, step_counter);
 
       push (talon, pop (stock));
       continue;
@@ -301,7 +304,7 @@ int main (void)
           sprintf (move_description, "%c%c from Talon to %d.", 
             card->rank, card->suit, i + 1);
           print (stock, talon, foundation_stacks, tableau_stacks, 
-            move_description);
+            move_description, step_counter);
           
           card = pop (talon);
           card->face_up = true;
@@ -315,14 +318,16 @@ int main (void)
       {
         if (empty (stock))
         {
-          print (stock, talon, foundation_stacks, tableau_stacks, "End Game.");
+          print (stock, talon, foundation_stacks, tableau_stacks, 
+            "End Game.", step_counter);
           playing = false;
 
           break;
         }
 
         sprintf (move_description, "Moved a card from Stock to Talon.");
-        print (stock, talon, foundation_stacks, tableau_stacks, move_description);
+        print (stock, talon, foundation_stacks, tableau_stacks, 
+          move_description, step_counter);
 
         push (talon, pop (stock));
       }
