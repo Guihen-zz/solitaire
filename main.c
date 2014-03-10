@@ -312,6 +312,14 @@ int main (void)
     /*************************** Use the talon ********************************/
     if (empty (talon))
     {
+      if (empty (stock))
+      {
+        print (stock, talon, foundation_stacks, tableau_stacks, 
+          "End Game.", ++step_counter);
+
+        break;
+      }
+
       sprintf (move_description, "Moved a card from Stock to Talon.");
       print (stock, talon, foundation_stacks, tableau_stacks,
         move_description, ++step_counter);
