@@ -36,6 +36,19 @@ void push (CardStack stack, Card card)
   head_next->prev = new_node;
 }
 
+void push_stack (CardStack to, CardStack from)
+{
+  link head_next = to->HEAD->next;
+
+  to->HEAD->next = from->HEAD->next;
+  from->TAIL->prev->next = head_next;
+  
+  head_next->prev = from->TAIL->prev;
+  from->HEAD->next->prev = to->HEAD;
+  
+  free (from);
+}
+
 Card pop (CardStack stack)
 {
   Card card;
@@ -51,6 +64,25 @@ Card pop (CardStack stack)
   
   return card;
 }
+
+CardStack pop_stack (CardStack stack, Node base)
+{
+  CardStack sub_stack;
+  if (base == NONE) return NONE;
+
+  sub_stack = new_stack();
+  sub_stack->HEAD->next = stack->HEAD->next;
+  sub_stack->TAIL->prev = base;
+  
+  stack->HEAD->next = base->next;
+  base->next->prev = stack->HEAD;
+  
+  base->next = sub_stack->TAIL;
+  sub_stack->HEAD->next->prev = sub_stack->HEAD;
+
+  return sub_stack;
+}
+
 
 link get_last_node (CardStack stack)
 {

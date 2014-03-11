@@ -35,6 +35,10 @@ struct doubly_linked
 CardStack new_stack();
 void push (CardStack, Card);
 Card pop (CardStack);
+
+void push_stack (CardStack, CardStack);
+CardStack pop_stack (CardStack, Node);
+
 bool empty (CardStack);
 
 Node get_last_node (CardStack);
