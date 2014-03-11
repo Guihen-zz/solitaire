@@ -142,7 +142,8 @@ char *show_talon (CardStack talon)
   if ( top == NULL)
     return "XX";
 
-  msg = malloc (3);
+  msg = malloc (3), msg[0] = '\0';
+
   card = get_card (top);
   sprintf(msg, "%c%c", card->rank, card->suit);
   return msg;
@@ -157,8 +158,9 @@ char *show_foundation_stacks (CardStack *foundation_stacks)
   Node node;
   Card card;
 
-  for (i = 0; i < 4; i++)
+  for (msg[0] = '\0', i = 0; i < 4; i++)
   {
+    temp[0] = '\0';
     node = get_first_node (foundation_stacks[i]);
     if (node != NULL)
     {
