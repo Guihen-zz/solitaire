@@ -231,7 +231,8 @@ void print (CardStack stock, CardStack talon, CardStack *foundation_stacks,
   printf ("|#%3d| Next move: %s\n", step_counter, move_description);
   printf ("\t\t(tap a key to continue...)\n");
 
-  /* it should wait the user hit a key... */
+  /* it wait the user hit a key (if he don't use the pipeline to pass args... */
+  getchar();
   system("clear");
 }
 
@@ -263,7 +264,8 @@ int main (void)
     for (i = 0; i < 7; i++)
     {
       card = get_card (get_first_node (tableau_stacks[i]));
-      
+
+      /* Move from Tableau to Foundation. */
       node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
       if ((node == NULL && card->rank == 'A') || 
         (node != NULL && could_push_into_foundation (card, get_card (node))))
