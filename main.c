@@ -174,7 +174,7 @@ char *show_foundation_stacks (CardStack *foundation_stacks)
         case 2: suit = 'P'; break;
         case 3: suit = 'O'; break;
       }
-      sprintf (temp, "  [  %c]  ", suit);
+      sprintf (temp, "  [ %c]  ", suit);
     } 
     msg = strcat (msg, temp);
   }
@@ -216,7 +216,7 @@ void print (CardStack stock, CardStack talon, CardStack *foundation_stacks,
   printf ("+---------------------------------------------------------+\n");
   printf ("|                        Solitaire                        |\n");
   printf ("+---------------------------------------------------------+\n");
-  printf ("| (%s) [%s]      %s |\n",
+  printf ("| (%s) [%s]          %s |\n",
     show_stock(stock), show_talon(talon), 
     show_foundation_stacks(foundation_stacks));
   
