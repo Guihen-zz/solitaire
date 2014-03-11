@@ -353,6 +353,9 @@ int main (void)
         }
       }
 
+      /* For the invariant relation: i < 7 => a movimentation has happened. */
+      if (i < 7) break;
+
       node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
       if ((node == NULL && card->rank == 'A') || 
         (node != NULL && could_push_into_foundation (card, get_card (node))))
