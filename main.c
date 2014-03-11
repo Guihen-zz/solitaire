@@ -329,6 +329,7 @@ int main (void)
         break;
       }
 
+
       sprintf (move_description, "Moved a card from Stock to Talon.");
       print (stock, talon, foundation_stacks, tableau_stacks,
         move_description, ++step_counter);
@@ -344,6 +345,7 @@ int main (void)
       /* I. R.: tableau stacks with index < i has been visited. */
       for (i = 0; i < 7; i++)
       {
+        if (empty (tableau_stacks[i])) continue;
         if (could_push (card, get_card (get_first_node (tableau_stacks[i]))))
         {
           sprintf (move_description, "%c%c from Talon to %d.", 
