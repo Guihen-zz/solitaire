@@ -2,7 +2,7 @@
 #define CSET
 
 #include <stdbool.h>
-#include "Card.h"
+#include "CARD.h"
 
 #define NONE NULL
 #define Node link
