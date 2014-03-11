@@ -263,6 +263,9 @@ int main (void)
     /* INVARIANT RELATION: tableau stacks with index < i has been analyzed. */
     for (i = 0; i < 7; i++)
     {
+      /* There's nothing to do when the stack is empty. */
+      if (empty (tableau_stacks[i])) continue;
+
       card = get_card (get_first_node (tableau_stacks[i]));
 
       /* Move from Tableau to Foundation. */
@@ -286,8 +289,8 @@ int main (void)
         /* skips search in the same stack. */
         if (j == i) continue;
 
-        if (could_push (card, 
-          get_card (get_first_node (tableau_stacks[j]))))
+        if (!empty (tableau_stacks[j]) &&
+          could_push (card, get_card (get_first_node (tableau_stacks[j]))))
         {
           /* FIX this condition. */
           node = next_node (get_first_node (tableau_stacks[i]));
@@ -300,8 +303,10 @@ int main (void)
             move_description, ++step_counter);
 
           push (tableau_stacks[j], pop (tableau_stacks[i]));
-          get_card (get_first_node (tableau_stacks[i]))->face_up = true;
-          
+
+          if (!empty (tableau_stacks[i]) )
+            get_card (get_first_node (tableau_stacks[i]))->face_up = true;
+
           break;
         }
       }
