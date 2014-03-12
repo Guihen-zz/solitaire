@@ -15,18 +15,18 @@ Card *get_deck ()
 
   while (deck_size) {
     card = malloc(sizeof(*card));
-    fgets(line, 6, stdin); 
+    line = fgets(line, 6, stdin); 
 
-	if (line[0] == '1') /* 10 <Suit><enter>\0 */
-	{
-		card->rank = 'X';
+	  if (line[0] == '1') /* 10 <Suit><enter>\0 */
+	  {
+		  card->rank = 'X';
     	card->suit = line[3];
-	}
-	else /* <Rank><space><Suit><enter>\0 */
-	{
-	    card->rank = line[0];
+	  }
+	  else /* <Rank><space><Suit><enter>\0 */
+	  {
+      card->rank = line[0];
     	card->suit = line[2];
-	}
+	  }
 
     card->face_up = false;
     deck[--deck_size] = card;
@@ -244,7 +244,7 @@ void print (CardStack stock, CardStack talon, CardStack *foundation_stacks,
 
   /* it wait the user hit a key (if he don't use the pipeline to pass args... */
   getchar();
-  system("clear");
+  if (system("clear") != 0) printf ("Erro ao limpar a tela.\n");
 }
 
 int suit_to_number (Suit s)
@@ -295,7 +295,7 @@ int main (void)
       }
       
       
-      for (node = get_first_node (tableau_stacks[i]); node != NONE && get_card(node)->face_up; node = next_node (node))
+      for (node = get_first_node (tableau_stacks[i]), j = 0; node != NONE && get_card(node)->face_up; node = next_node (node))
       {
         card = get_card (node);
 

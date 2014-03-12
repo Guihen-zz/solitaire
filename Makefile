@@ -5,7 +5,8 @@
 
 # -- Variaveis de Configuracao -- #
 CC = gcc
-CFLAGS = -g -I. -Wall -pedantic -ansi
+#CFLAGS = -g -I. -Wall -pedantic -ansi
+CFLAGS = -Wall -ansi -pedantic -O2 
 LDFLAGS = -L.
 
 RM = /bin/rm -f
