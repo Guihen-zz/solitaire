@@ -295,13 +295,58 @@ bool movement_from_tableau_to_foundation (int tableau_index)
   return false;
 }
 
+/* Returns true if there was a movement; returns false otherwise. */
+bool movement_to_another_tableau (int tableau_index)
+{
+  int j;
+  Card card;
+  Node node, aux;
+  for (node  = get_first_node (tableau_stacks[tableau_index]);
+       node != NONE && get_card(node)->face_up;
+       node  = next_node (node))
+  {
+    card = get_card (node);
+
+    /* I. R.: tableau stacks with index < j has been visited. */
+    for (j = 0; j < 7; j++)
+    {
+      /* skips search in the same stack. */
+      if (j == tableau_index) continue;
+
+      if (!empty (tableau_stacks[j]) &&
+        could_push (card, get_card (get_first_node (tableau_stacks[j]))))
+      {
+        /* AVOID DUMB MOVEMENT: move card to another tableau only if the origin
+         *                      stack will reveal another card. */
+        aux = next_node (node);
+        if (aux != NULL && get_card (aux)->face_up)
+          continue;
+
+        sprintf (move_description, "%c%c from %d to %d.", 
+          card->rank, card->suit, tableau_index + 1, j + 1);
+        print (move_description, ++step_counter);
+
+        push_stack (tableau_stacks[j],
+          pop_stack (tableau_stacks[tableau_index], node));
+
+        if (!empty (tableau_stacks[tableau_index]) )
+          get_card (get_first_node (tableau_stacks[tableau_index]))->face_up = true;
+
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 int main (void)
 {
-  int i, j;
+  int i;
   Card *deck = get_deck();
   bool playing;
   Card card;
-  Node node, aux;
+  Node node;
 
   new_solitaire (deck); 
   
@@ -316,45 +361,9 @@ int main (void)
 
       card = get_card (get_first_node (tableau_stacks[i]));
 
+      if (movement_to_another_tableau (i)) break;
+
       if (movement_from_tableau_to_foundation (i)) break;
-      
-      
-      for (node = get_first_node (tableau_stacks[i]), j = 0; node != NONE && get_card(node)->face_up; node = next_node (node))
-      {
-        card = get_card (node);
-
-        /* I. R.: tableau stacks with index < j has been visited. */
-        for (j = 0; j < 7; j++)
-        {
-          /* skips search in the same stack. */
-          if (j == i) continue;
-
-          if (!empty (tableau_stacks[j]) &&
-            could_push (card, get_card (get_first_node (tableau_stacks[j]))))
-          {
-            /* FIX this condition. */
-            aux = next_node (node);
-            if (aux != NULL && get_card (aux)->face_up)
-              continue;
-
-            sprintf (move_description, "%c%c from %d to %d.", 
-              card->rank, card->suit, i + 1, j + 1);
-            print (move_description, ++step_counter);
-
-            push_stack (tableau_stacks[j], pop_stack (tableau_stacks[i], node));
-
-            if (!empty (tableau_stacks[i]) )
-              get_card (get_first_node (tableau_stacks[i]))->face_up = true;
-
-            break;
-          }
-        }
-        
-        if (j < 7) break;
-      }
-
-      /* For the invariant relation: j < 7 => a movimentation has happened. */
-      if (j < 7) break;
     }
 
     /* For the invariant relation: i < 7 => a movimentation has happened. */
