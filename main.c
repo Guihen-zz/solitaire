@@ -6,6 +6,12 @@
 
 #define DECKSIZE 52
 
+/* Global variables */
+CardStack *tableau_stacks;
+CardStack *foundation_stacks;
+CardStack stock;
+CardStack talon;
+
 Card *get_deck ()
 {
   int deck_size = DECKSIZE;
@@ -72,7 +78,7 @@ CardStack* prepare_tableau_stacks (Card *deck)
   return tableau_stacks;
 }
 
-void print_tableau_stacks (CardStack *tableau_stacks)
+void print_tableau_stacks ()
 {
   int i, j;
   Node node[7];
@@ -136,14 +142,14 @@ CardStack *prepare_foundation_stacks()
   return foundation_stacks;
 }
 
-char *show_stock (CardStack stock)
+char *show_stock ()
 {
   if (get_first_node(stock) == NULL)
     return "RELOAD";
   return " GET! ";
 }
 
-char *show_talon (CardStack talon)
+char *show_talon ()
 {
   Node top = get_first_node(talon);
   Card card;
@@ -159,7 +165,7 @@ char *show_talon (CardStack talon)
   return msg;
 }
 
-char *show_foundation_stacks (CardStack *foundation_stacks)
+char *show_foundation_stacks ()
 {
   int i;
   char *msg = malloc (4 * 8 + 1),
@@ -221,8 +227,7 @@ bool could_push_into_foundation (Card origin, Card destination)
       (origin->rank == next_rank (destination->rank)));
 }
 
-void print (CardStack stock, CardStack talon, CardStack *foundation_stacks, 
-  CardStack *tableau_stacks, char *move_description, int step_counter)
+void print (char *move_description, int step_counter)
 {
   /* This panel contains 59 chars. */
   /* 24 spaces between the title and the form. */
@@ -230,13 +235,12 @@ void print (CardStack stock, CardStack talon, CardStack *foundation_stacks,
   printf ("|                        Solitaire                        |\n");
   printf ("+---------------------------------------------------------+\n");
   printf ("| (%s) [%s]          %s |\n",
-    show_stock(stock), show_talon(talon), 
-    show_foundation_stacks(foundation_stacks));
+    show_stock(), show_talon(), show_foundation_stacks());
   
   printf ("|                                                         |\n");
   printf ("|                                                         |\n");
 
-  print_tableau_stacks (tableau_stacks);
+  print_tableau_stacks ();
 
   printf ("|_________________________________________________________|\n");
   printf ("|#%3d| Next move: %s\n", step_counter, move_description);
@@ -255,18 +259,24 @@ int suit_to_number (Suit s)
   /* s == 'O' */return 3;
 }
 
+void new_solitaire (Deck deck)
+{
+  tableau_stacks = prepare_tableau_stacks (deck);
+  foundation_stacks = prepare_foundation_stacks();
+  stock = prepare_stock_stack (deck);
+  talon = new_stack();
+}
+
 int main (void)
 {
   int i, j, step_counter = 0;
   Card *deck = get_deck();
   char *move_description = malloc (48);
-  CardStack *tableau_stacks = prepare_tableau_stacks (deck),
-    *foundation_stacks = prepare_foundation_stacks();
-  CardStack stock = prepare_stock_stack (deck),
-    talon = new_stack();
   bool playing;
   Card card;
   Node node, aux;
+
+  new_solitaire (deck); 
   
   playing = true;
   while (playing)
@@ -286,8 +296,7 @@ int main (void)
       {
         sprintf (move_description, "%c%c from %d to Foundation.", 
           card->rank, card->suit, i + 1);
-        print (stock, talon, foundation_stacks, tableau_stacks,
-          move_description, ++step_counter);
+        print (move_description, ++step_counter);
 
         push (foundation_stacks[suit_to_number (card->suit)], pop (tableau_stacks[i]));
         get_card (get_first_node (tableau_stacks[i]))->face_up = true;
@@ -315,8 +324,7 @@ int main (void)
 
             sprintf (move_description, "%c%c from %d to %d.", 
               card->rank, card->suit, i + 1, j + 1);
-            print (stock, talon, foundation_stacks, tableau_stacks,
-              move_description, ++step_counter);
+            print (move_description, ++step_counter);
 
             push_stack (tableau_stacks[j], pop_stack (tableau_stacks[i], node));
 
@@ -342,16 +350,13 @@ int main (void)
     {
       if (empty (stock))
       {
-        print (stock, talon, foundation_stacks, tableau_stacks, 
-          "End Game.", ++step_counter);
+        print ("End Game.", ++step_counter);
 
         break;
       }
 
-
       sprintf (move_description, "Moved a card from Stock to Talon.");
-      print (stock, talon, foundation_stacks, tableau_stacks,
-        move_description, ++step_counter);
+      print (move_description, ++step_counter);
 
       push (talon, pop (stock));
       continue;
@@ -370,8 +375,7 @@ int main (void)
         {
           sprintf (move_description, "%c%c from Talon to %d.", 
             card->rank, card->suit, i + 1);
-          print (stock, talon, foundation_stacks, tableau_stacks, 
-            move_description, ++step_counter);
+          print (move_description, ++step_counter);
           
           card = pop (talon);
           card->face_up = true;
@@ -389,8 +393,7 @@ int main (void)
       {
         sprintf (move_description, "%c%c from Talon to Foundation.", 
           card->rank, card->suit);
-        print (stock, talon, foundation_stacks, tableau_stacks,
-          move_description, ++step_counter);
+        print (move_description, ++step_counter);
 
         push (foundation_stacks[suit_to_number (card->suit)], pop (talon));
         
@@ -402,16 +405,14 @@ int main (void)
       {
         if (empty (stock))
         {
-          print (stock, talon, foundation_stacks, tableau_stacks, 
-            "End Game.", ++step_counter);
+          print ("End Game.", ++step_counter);
           playing = false;
 
           break;
         }
 
         sprintf (move_description, "Moved a card from Stock to Talon.");
-        print (stock, talon, foundation_stacks, tableau_stacks, 
-          move_description, ++step_counter);
+        print (move_description, ++step_counter);
 
         push (talon, pop (stock));
       }

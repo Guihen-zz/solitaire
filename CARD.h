@@ -24,5 +24,6 @@ struct card
   bool face_up;
 };
 typedef struct card *Card;
+typedef Card* Deck;
 
 #endif
