@@ -4,7 +4,7 @@
 #include "CARD.h"
 #include "CARD_STACK.h"
 
-#define DECKSIZE 48
+#define DECKSIZE 52
 
 Card *get_deck ()
 {
