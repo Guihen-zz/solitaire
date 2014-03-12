@@ -301,13 +301,13 @@ bool movement_to_another_tableau (int tableau_index)
   int j;
   Card card;
   Node node, aux;
+
   for (node  = get_first_node (tableau_stacks[tableau_index]);
        node != NONE && get_card(node)->face_up;
        node  = next_node (node))
   {
     card = get_card (node);
 
-    /* I. R.: tableau stacks with index < j has been visited. */
     for (j = 0; j < 7; j++)
     {
       /* skips search in the same stack. */
@@ -332,6 +332,49 @@ bool movement_to_another_tableau (int tableau_index)
         if (!empty (tableau_stacks[tableau_index]) )
           get_card (get_first_node (tableau_stacks[tableau_index]))->face_up = true;
 
+        return true;
+      }
+    } /* for (j) */
+  } /* for (nodes) */
+
+  return false;
+}
+
+bool movement_from_talon_to_tableau ()
+{
+  int i;
+  Card card = get_card (get_first_node (talon));
+
+  for (i = 0; i < 7; i++)
+  {
+    if (empty (tableau_stacks[i]))
+    {
+      if (card->rank == 'K')
+      {
+        sprintf (move_description, "%c%c from Talon to %d.", 
+          card->rank, card->suit, i + 1);
+        print (move_description, ++step_counter);
+        
+        card = pop (talon);
+        card->face_up = true;
+        push (tableau_stacks[i], card);
+        
+        return true;
+      }
+      /* else continue */
+    }
+    else
+    {
+      if (could_push (card, get_card (get_first_node (tableau_stacks[i]))))
+      {
+        sprintf (move_description, "%c%c from Talon to %d.", 
+          card->rank, card->suit, i + 1);
+        print (move_description, ++step_counter);
+        
+        card = pop (talon);
+        card->face_up = true;
+        push (tableau_stacks[i], card);
+        
         return true;
       }
     }
@@ -359,8 +402,6 @@ int main (void)
       /* There's nothing to do when the stack is empty. */
       if (empty (tableau_stacks[i])) continue;
 
-      card = get_card (get_first_node (tableau_stacks[i]));
-
       if (movement_to_another_tableau (i)) break;
 
       if (movement_from_tableau_to_foundation (i)) break;
@@ -369,7 +410,7 @@ int main (void)
     /* For the invariant relation: i < 7 => a movimentation has happened. */
     if (i < 7) continue;
     
-    /*************************** Use the talon ********************************/
+    /*************************** Using the talon ******************************/
     if (empty (talon))
     {
       if (empty (stock))
@@ -387,29 +428,9 @@ int main (void)
 
     do
     {
+      if (movement_from_talon_to_tableau()) break;
+
       card = get_card (get_first_node (talon));
-
-      /* I. R.: tableau stacks with index < i has been visited. */
-      for (i = 0; i < 7; i++)
-      {
-        if (empty (tableau_stacks[i])) continue;
-
-        if (could_push (card, get_card (get_first_node (tableau_stacks[i]))))
-        {
-          sprintf (move_description, "%c%c from Talon to %d.", 
-            card->rank, card->suit, i + 1);
-          print (move_description, ++step_counter);
-          
-          card = pop (talon);
-          card->face_up = true;
-          push (tableau_stacks[i], card);
-          break;
-        }
-      }
-
-      /* For the invariant relation: i < 7 => a movimentation has happened. */
-      if (i < 7) break;
-
       node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
       if ((node == NULL && card->rank == 'A') || 
         (node != NULL && could_push_into_foundation (card, get_card (node))))
