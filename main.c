@@ -171,9 +171,9 @@ char *show_foundation_stacks (CardStack *foundation_stacks)
     {
       switch (i)
       {
-        case 0: suit = 'C'; break;
-        case 1: suit = 'E'; break;
-        case 2: suit = 'P'; break;
+        case 0: suit = 'P'; break;
+        case 1: suit = 'C'; break;
+        case 2: suit = 'E'; break;
         case 3: suit = 'O'; break;
       }
       sprintf (temp, "  [ %c]  ", suit);
@@ -238,9 +238,9 @@ void print (CardStack stock, CardStack talon, CardStack *foundation_stacks,
 
 int suit_to_number (Suit s)
 {
-  if (s == 'C') return 0;
-  if (s == 'E') return 1;
-  if (s == 'P') return 2;
+  if (s == 'P') return 0;
+  if (s == 'C') return 1;
+  if (s == 'E') return 2;
   /* s == 'O' */return 3;
 }
 
