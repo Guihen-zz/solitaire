@@ -9,15 +9,25 @@
 Card *get_deck ()
 {
   int deck_size = DECKSIZE;
-  char *line = malloc (5);
+  char *line = malloc (6);
   Card card;
   Card *deck = malloc(sizeof(Card) * DECKSIZE);
 
   while (deck_size) {
     card = malloc(sizeof(*card));
-    fgets(line, 5, stdin); /* <Rank><space><Suit><enter>\0 */
-    card->rank = line[0];
-    card->suit = line[2];
+    fgets(line, 6, stdin); 
+
+	if (line[0] == '1') /* 10 <Suit><enter>\0 */
+	{
+		card->rank = 'X';
+    	card->suit = line[3];
+	}
+	else /* <Rank><space><Suit><enter>\0 */
+	{
+	    card->rank = line[0];
+    	card->suit = line[2];
+	}
+
     card->face_up = false;
     deck[--deck_size] = card;
   }
@@ -191,11 +201,12 @@ bool is_red (Suit s)
 Rank next_rank (Rank r)
 {
   if (r == 'A') return '2';
-  if (r < 57) return r + 1;
-  if (r == '9') return 'J';
+  if (r < 57)   return r + 1;
+  if (r == '9') return 'X';
+  if (r == 'X') return 'J';
   if (r == 'J') return 'Q';
   if (r == 'Q') return 'K';
-  else return 'X'; /* This will not match with nothing. */
+  else return '*'; /* This will not match with nothing. */
 }
 
 bool could_push (Card origin, Card destination)
