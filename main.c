@@ -11,6 +11,8 @@ CardStack *tableau_stacks;
 CardStack *foundation_stacks;
 CardStack stock;
 CardStack talon;
+int step_counter;
+char *move_description;
 
 Card *get_deck ()
 {
@@ -265,13 +267,38 @@ void new_solitaire (Deck deck)
   foundation_stacks = prepare_foundation_stacks();
   stock = prepare_stock_stack (deck);
   talon = new_stack();
+
+  move_description = malloc (48);
+  step_counter = 0;
+}
+
+/* Returns true if there was a movement; returns false otherwise. */
+bool movement_from_tableau_to_foundation (int tableau_index)
+{
+  Card card = get_card (get_first_node (tableau_stacks[tableau_index]));
+  Node node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
+  
+  if ((node == NULL && card->rank == 'A') ||
+    (node != NULL && could_push_into_foundation (card, get_card (node))))
+  {
+    sprintf (move_description, "%c%c from %d to Foundation.", 
+      card->rank, card->suit, tableau_index + 1);
+    print (move_description, ++step_counter);
+
+    push (foundation_stacks[suit_to_number (card->suit)],
+      pop (tableau_stacks[tableau_index]));
+    get_card (get_first_node (tableau_stacks[tableau_index]))->face_up = true;
+
+    return true;
+  }
+
+  return false;
 }
 
 int main (void)
 {
-  int i, j, step_counter = 0;
+  int i, j;
   Card *deck = get_deck();
-  char *move_description = malloc (48);
   bool playing;
   Card card;
   Node node, aux;
@@ -289,19 +316,7 @@ int main (void)
 
       card = get_card (get_first_node (tableau_stacks[i]));
 
-      /* Move from Tableau to Foundation. */
-      node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
-      if ((node == NULL && card->rank == 'A') ||
-        (node != NULL && could_push_into_foundation (card, get_card (node))))
-      {
-        sprintf (move_description, "%c%c from %d to Foundation.", 
-          card->rank, card->suit, i + 1);
-        print (move_description, ++step_counter);
-
-        push (foundation_stacks[suit_to_number (card->suit)], pop (tableau_stacks[i]));
-        get_card (get_first_node (tableau_stacks[i]))->face_up = true;
-        break;
-      }
+      if (movement_from_tableau_to_foundation (i)) break;
       
       
       for (node = get_first_node (tableau_stacks[i]), j = 0; node != NONE && get_card(node)->face_up; node = next_node (node))
@@ -355,8 +370,7 @@ int main (void)
         break;
       }
 
-      sprintf (move_description, "Moved a card from Stock to Talon.");
-      print (move_description, ++step_counter);
+      print ("Moved a card from Stock to Talon.", ++step_counter);
 
       push (talon, pop (stock));
       continue;
@@ -411,9 +425,7 @@ int main (void)
           break;
         }
 
-        sprintf (move_description, "Moved a card from Stock to Talon.");
-        print (move_description, ++step_counter);
-
+        print ("Moved a card from Stock to Talon.", ++step_counter);
         push (talon, pop (stock));
       }
 
