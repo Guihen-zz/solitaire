@@ -287,7 +287,9 @@ bool movement_from_tableau_to_foundation (int tableau_index)
 
     push (foundation_stacks[suit_to_number (card->suit)],
       pop (tableau_stacks[tableau_index]));
-    get_card (get_first_node (tableau_stacks[tableau_index]))->face_up = true;
+
+    if (!empty (tableau_stacks[tableau_index]))
+      get_card (get_first_node (tableau_stacks[tableau_index]))->face_up = true;
 
     return true;
   }
@@ -408,12 +410,11 @@ bool movement_from_talon_to_foundation ()
 int main (void)
 {
   int i;
+  bool playing = true;
   Card *deck = get_deck();
-  bool playing;
 
   new_solitaire (deck); 
   
-  playing = true;
   while (playing)
   {
     /* INVARIANT RELATION: tableau stacks with index < i has been analyzed. */
@@ -446,29 +447,25 @@ int main (void)
       continue;
     }
 
-    do
+    while (1 /* Until there were not cards in the stock */)
     {
       if (movement_from_talon_to_tableau()) break;
 
       if (movement_from_talon_to_foundation()) break;
 
-      /* For the invariant relation: i = 7 => there is not a move to do. */  
-      if (i == 7)
+      if (empty (stock))
       {
-        if (empty (stock))
-        {
-          print ("End Game.", ++step_counter);
-          playing = false;
+        print ("End Game.", ++step_counter);
+        playing = false;
 
-          break;
-        }
-
-        print ("Moved a card from Stock to Talon.", ++step_counter);
-        push (talon, pop (stock));
+        break;
       }
+      /* else: Get a card from stock */
+      print ("Moved a card from Stock to Talon.", ++step_counter);
+      push (talon, pop (stock));
+    }
 
-    } while (i == 7);
-  }
+  } /* while playing */
   
   return 0;
 }
