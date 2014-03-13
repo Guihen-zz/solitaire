@@ -407,6 +407,42 @@ bool movement_from_talon_to_foundation ()
   return false;
 }
 
+bool movement_to_get_a_king (int tableau_index)
+{
+  int j;
+  Card card;
+  Node node;
+
+  for (j = 0; j < 7; j++)
+  {
+    /* skip search in the same stack. */
+    if (j == tableau_index) continue;
+
+    for (node  = get_first_node (tableau_stacks[j]);
+       node != NONE && get_card(node)->face_up;
+       node  = next_node (node))
+    {
+      card = get_card (node);
+      if (card->rank == 'K' && next_node (node) != NONE)
+      {
+        sprintf (move_description, "%c%c from %d to %d.", 
+          card->rank, card->suit, j + 1, tableau_index + 1);
+        print (move_description, ++step_counter);
+
+        push_stack (tableau_stacks[tableau_index], 
+          pop_stack (tableau_stacks[j], node));
+
+        if (!empty (tableau_stacks[tableau_index]) )
+          get_card (get_first_node (tableau_stacks[tableau_index]))->face_up = true;
+
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 int main (void)
 {
   int i;
@@ -421,7 +457,11 @@ int main (void)
     for (i = 0; i < 7; i++)
     {
       /* There's nothing to do when the stack is empty. */
-      if (empty (tableau_stacks[i])) continue;
+      if (empty (tableau_stacks[i]))
+      {
+        if (movement_to_get_a_king (i)) break;
+        /* else */ continue;
+      }
 
       if (movement_to_another_tableau (i)) break;
 
