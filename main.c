@@ -443,6 +443,36 @@ bool movement_to_get_a_king (int tableau_index)
   return false;
 }
 
+bool there_is_a_movement_in_talon()
+{
+  int i;
+  Node node;
+  Card card;
+
+  for (node = get_first_node(talon); node != NONE; node = next_node (node))
+  {
+    card = get_card (node);
+    for (i = 0; i < 7; i++)
+    {
+      if (could_push (card, get_card (get_first_node (tableau_stacks[i]))))
+        return true;
+
+      if (could_push_into_foundation(card, 
+        get_card (get_first_node (foundation_stacks[suit_to_number (card->suit)]))))
+        return true;
+    }
+  }
+  return false;
+}
+
+void talon_to_stock()
+{
+  Card card;
+  print ("Recycle Talon into Stock.", ++step_counter);
+  for (card = pop (talon); card != NONE; card = pop (talon))
+    push (stock, card);
+}
+
 int main (void)
 {
   int i;
@@ -495,6 +525,12 @@ int main (void)
 
       if (empty (stock))
       {
+        if (there_is_a_movement_in_talon())
+        {
+          talon_to_stock();
+          break;
+        }
+        /* else */
         print ("End Game.", ++step_counter);
         playing = false;
 
