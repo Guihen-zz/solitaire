@@ -340,6 +340,7 @@ bool movement_to_another_tableau (int tableau_index)
   return false;
 }
 
+/* Returns true if there was a movement; returns false otherwise. */
 bool movement_from_talon_to_tableau ()
 {
   int i;
@@ -383,13 +384,32 @@ bool movement_from_talon_to_tableau ()
   return false;
 }
 
+/* Returns true if there was a movement; returns false otherwise. */
+bool movement_from_talon_to_foundation ()
+{
+  Card card = get_card (get_first_node (talon));
+  Node node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
+  
+  if ((node == NULL && card->rank == 'A') || 
+    (node != NULL && could_push_into_foundation (card, get_card (node))))
+  {
+    sprintf (move_description, "%c%c from Talon to Foundation.", 
+      card->rank, card->suit);
+    print (move_description, ++step_counter);
+
+    push (foundation_stacks[suit_to_number (card->suit)], pop (talon));
+    
+    return true;
+  }
+
+  return false;
+}
+
 int main (void)
 {
   int i;
   Card *deck = get_deck();
   bool playing;
-  Card card;
-  Node node;
 
   new_solitaire (deck); 
   
@@ -430,19 +450,7 @@ int main (void)
     {
       if (movement_from_talon_to_tableau()) break;
 
-      card = get_card (get_first_node (talon));
-      node = get_first_node (foundation_stacks[suit_to_number (card->suit)]);
-      if ((node == NULL && card->rank == 'A') || 
-        (node != NULL && could_push_into_foundation (card, get_card (node))))
-      {
-        sprintf (move_description, "%c%c from Talon to Foundation.", 
-          card->rank, card->suit);
-        print (move_description, ++step_counter);
-
-        push (foundation_stacks[suit_to_number (card->suit)], pop (talon));
-        
-        break;
-      }
+      if (movement_from_talon_to_foundation()) break;
 
       /* For the invariant relation: i = 7 => there is not a move to do. */  
       if (i == 7)
