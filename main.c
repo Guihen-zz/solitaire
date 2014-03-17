@@ -525,6 +525,7 @@ int main (void)
 
       if (empty (stock))
       {
+        /* The price of 100 points is too large to do this
         if (there_is_a_movement_in_talon())
         {
           talon_to_stock();
