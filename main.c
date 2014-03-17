@@ -14,7 +14,7 @@ CardStack talon;
 int step_counter;
 char *move_description;
 
-Card *get_deck ()
+Card *get_deck (FILE *input)
 {
   int deck_size = DECKSIZE;
   char *line = malloc (6);
@@ -23,7 +23,7 @@ Card *get_deck ()
 
   while (deck_size) {
     card = malloc(sizeof(*card));
-    line = fgets(line, 6, stdin); 
+    line = fgets(line, 6, input); 
 
 	  if (line[0] == '1') /* 10 <Suit><enter>\0 */
 	  {
@@ -231,6 +231,8 @@ bool could_push_into_foundation (Card origin, Card destination)
 
 void print (char *move_description, int step_counter)
 {
+  if (system("clear") != 0) printf ("Erro ao limpar a tela.\n");
+  
   /* This panel contains 59 chars. */
   /* 24 spaces between the title and the form. */
   printf ("+---------------------------------------------------------+\n");
@@ -250,7 +252,6 @@ void print (char *move_description, int step_counter)
 
   /* it wait the user hit a key (if he don't use the pipeline to pass args... */
   getchar();
-  if (system("clear") != 0) printf ("Erro ao limpar a tela.\n");
 }
 
 int suit_to_number (Suit s)
@@ -429,11 +430,10 @@ bool movement_to_get_a_king (int tableau_index)
           card->rank, card->suit, j + 1, tableau_index + 1);
         print (move_description, ++step_counter);
 
+        get_card (next_node (node))->face_up = true;
+
         push_stack (tableau_stacks[tableau_index], 
           pop_stack (tableau_stacks[j], node));
-
-        if (!empty (tableau_stacks[tableau_index]) )
-          get_card (get_first_node (tableau_stacks[tableau_index]))->face_up = true;
 
         return true;
       }
@@ -473,12 +473,27 @@ void talon_to_stock()
     push (stock, card);
 }
 
-int main (void)
+int main (int argc, char *argv[])
 {
   int i;
   bool playing = true;
-  Card *deck = get_deck();
+  Card *deck;
+  FILE *input;
 
+  if (argc < 2)
+  {
+    printf ("Error: Wrong use of the program. Try: ./main <input_name>\n");
+    return 1;
+  }
+
+  input = fopen (argv[1], "r");
+  if (!input)
+  {
+    printf ("Error: Can't open the file.\n");
+    return 2;
+  }
+
+  deck = get_deck(input); fclose (input);
   new_solitaire (deck); 
   
   while (playing)
@@ -530,7 +545,7 @@ int main (void)
         {
           talon_to_stock();
           break;
-        }
+        } */
         /* else */
         print ("End Game.", ++step_counter);
         playing = false;
